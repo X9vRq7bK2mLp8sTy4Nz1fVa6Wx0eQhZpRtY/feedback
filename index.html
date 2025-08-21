@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Feedback Form</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #000010 0%, #0f172a 100%);
+            font-family: Arial, Helvetica, sans-serif;
+            color: #fff;
+        }
+        
+        .container {
+            background-color: rgba(0, 0, 16, 0.8);
+            padding: 30px 40px;
+            border-radius: 16px;
+            border: 1px solid #2d3748;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 280px;
+            width: 320px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            z-index: -1;
+            background: linear-gradient(45deg, #ff0050, #00b3ff, #27ae60, #ff0050);
+            background-size: 400%;
+            border-radius: 18px;
+            animation: glow 20s linear infinite;
+        }
+        
+        @keyframes glow {
+            0% { background-position: 0 0; filter: blur(15px); opacity: 0.7; }
+            50% { background-position: 300% 0; filter: blur(20px); opacity: 0.5; }
+            100% { background-position: 0 0; filter: blur(15px); opacity: 0.7; }
+        }
+        
+        .center-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            flex-grow: 1;
+            animation: slideFade 1s ease forwards;
+        }
+        
+        h1 {
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0 0 15px 0;
+            transition: all 0.5s ease;
+        }
+        
+        hr {
+            border: 0;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #2d3748, transparent);
+            margin: 15px 0;
+            transition: all 0.5s ease;
+        }
+        
+        textarea {
+            background-color: #111927;
+            border: 1px solid #2d3748;
+            color: #ffffff;
+            font-size: 14px;
+            font-family: Arial, Helvetica, sans-serif;
+            padding: 12px;
+            border-radius: 8px;
+            resize: none;
+            outline: none;
+            min-height: 100px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+            transition: all 0.5s ease;
+        }
+        
+        textarea:focus {
+            border-color: #00b3ff;
+            box-shadow: 0 0 0 2px rgba(0, 179, 255, 0.2);
+        }
+        
+        button {
+            background: linear-gradient(to right, #4facfe 0%, #00b3ff 100%);
+            color: #ffffff;
+            border: none;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(0, 179, 255, 0.4);
+            letter-spacing: 0.5px;
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        button:hover::before {
+            left: 100%;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 179, 255, 0.6);
+        }
+        
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 10px rgba(0, 179, 255, 0.4);
+        }
+        
+        .fade-out {
+            opacity: 0 !important;
+            transform: translateY(20px) scale(0.95) !important;
+            transition: all 0.7s ease !important;
+        }
+        
+        .success-animation {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .checkmark {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: block;
+            stroke-width: 3;
+            stroke: #4ade80;
+            stroke-miterlimit: 10;
+            filter: drop-shadow(0 0 8px rgba(74, 222, 128, 0.6));
+            animation: fill-check .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+        }
+        
+        .checkmark-circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-width: 3;
+            stroke-miterlimit: 10;
+            stroke: #4ade80;
+            fill: none;
+            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
+        
+        .checkmark-check {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+        }
+        
+        .xmark {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: block;
+            stroke-width: 3;
+            stroke: #ff0050;
+            stroke-miterlimit: 10;
+            filter: drop-shadow(0 0 8px rgba(255, 0, 80, 0.6));
+            animation: fill-x .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+        }
+        
+        .xmark-circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-width: 3;
+            stroke-miterlimit: 10;
+            stroke: #ff0050;
+            fill: none;
+            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
+        
+        .xmark-check {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+        }
+        
+        @keyframes stroke {
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+        
+        @keyframes scale {
+            0%, 100% {
+                transform: none;
+            }
+            50% {
+                transform: scale3d(1.1, 1.1, 1);
+            }
+        }
+        
+        @keyframes fill-check {
+            100% {
+                filter: drop-shadow(0 0 12px rgba(74, 222, 128, 0.8));
+            }
+        }
+        
+        @keyframes fill-x {
+            100% {
+                filter: drop-shadow(0 0 12px rgba(255, 0, 80, 0.8));
+            }
+        }
+        
+        .success-message {
+            color: #4ade80;
+            font-weight: 600;
+            font-size: 20px;
+            margin-top: 15px;
+            opacity: 0;
+            animation: fadeIn 0.5s ease 1.2s forwards;
+        }
+        
+        .error-message {
+            color: #ff0050;
+            font-weight: 600;
+            font-size: 20px;
+            margin-top: 15px;
+            opacity: 0;
+            animation: fadeIn 0.5s ease 1.2s forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animation-options {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .anim-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 2px solid #2d3748;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .anim-option:hover {
+            border-color: #00b3ff;
+            transform: scale(1.1);
+            background: rgba(0, 179, 255, 0.1);
+        }
+        
+        .anim-option.active {
+            border-color: #00b3ff;
+            box-shadow: 0 0 10px rgba(0, 179, 255, 0.5);
+            background: rgba(0, 179, 255, 0.2);
+        }
+        
+        @keyframes slideFade {
+            0% {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .reset-form {
+            opacity: 0;
+            transform: translateY(10px);
+            animation: resetAnimation 0.7s ease forwards;
+        }
+        
+        @keyframes resetAnimation {
+            0% {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .heart {
+            color: #ff0050;
+            font-size: 60px;
+            animation: pulse 1.5s ease infinite;
+            filter: drop-shadow(0 0 8px rgba(255, 0, 80, 0.6));
+        }
+        
+        .stars {
+            color: #ffcc00;
+            font-size: 60px;
+            animation: rotate 4s linear infinite;
+            filter: drop-shadow(0 0 8px rgba(255, 204, 0, 0.6));
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .access-denied {
+            color: #ff0050;
+            font-weight: 700;
+            font-size: 26px;
+            margin: 20px 0 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 0 15px rgba(255, 0, 80, 0.7);
+        }
+        
+        .countdown {
+            color: #00b3ff;
+            font-weight: 600;
+            font-size: 18px;
+            margin-top: 15px;
+            background: rgba(0, 179, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        
+        .denied-icon {
+            font-size: 70px;
+            color: #ff0050;
+            margin: 15px 0;
+            filter: drop-shadow(0 0 10px rgba(255, 0, 80, 0.7));
+            animation: pulse 1.5s infinite;
+        }
+        
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .access-denied-content {
+            animation: slideFade 0.8s ease forwards;
+        }
+        
+        .cooldown-message {
+            color: #cbd5e1;
+            margin-top: 20px;
+            line-height: 1.6;
+            max-width: 280px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="center-content" id="centerContent">
+            <h1 id="feedbackTitle">Send Your Feedback</h1>
+            <hr id="formHr">
+            <form id="feedbackForm">
+                <textarea name="message" placeholder="Type your feedback here..." required></textarea>
+                <div class="button-container">
+                    <button type="submit">
+                        <i class="fas fa-paper-plane"></i> Submit Feedback
+                    </button>
+                </div>
+            </form>
+            
+            <div class="animation-options">
+                <div class="anim-option active" data-anim="checkmark" title="Checkmark Animation">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div class="anim-option" data-anim="xmark" title="X Animation">
+                    <i class="fas fa-times"></i>
+                </div>
+                <div class="anim-option" data-anim="heart" title="Heart Animation">
+                    <i class="fas fa-heart"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let canSubmit = true;
+        let currentAnimation = 'checkmark';
+        let submissionCount = 0;
+        let lastSubmissionTime = 0;
+        
+        // Set up animation options
+        document.querySelectorAll('.anim-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.anim-option').forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                this.classList.add('active');
+                currentAnimation = this.getAttribute('data-anim');
+            });
+        });
+        
+        document.getElementById("feedbackForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            if (!canSubmit) return;
+            
+            const form = e.target;
+            const msg = form.message.value;
+            const textarea = form.querySelector("textarea");
+            const button = form.querySelector("button");
+            const title = document.getElementById("feedbackTitle");
+            const hr = document.getElementById("formHr");
+            const centerContent = document.getElementById("centerContent");
+            const animOptions = document.querySelector('.animation-options');
+            
+            // Check if user has submitted too many times
+            const currentTime = new Date().getTime();
+            if (submissionCount >= 3 && (currentTime - lastSubmissionTime) < 30 * 60 * 1000) {
+                showAccessDenied(centerContent, currentTime);
+                return;
+            }
+            
+            // Simple validation
+            if (msg.trim() === '') {
+                textarea.style.borderColor = '#ff0050';
+                setTimeout(() => {
+                    textarea.style.borderColor = '#2d3748';
+                }, 2000);
+                return;
+            }
+            
+            // Increment submission count and update time
+            submissionCount++;
+            lastSubmissionTime = currentTime;
+            
+            // In a real implementation, you would send the feedback to your server
+            // For demo purposes, we'll just show the success animation
+            
+            // Fade out all form elements
+            textarea.classList.add("fade-out");
+            button.classList.add("fade-out");
+            title.classList.add("fade-out");
+            hr.classList.add("fade-out");
+            if (animOptions) animOptions.classList.add("fade-out");
+            
+            // After fade out, replace with success animation
+            setTimeout(() => {
+                let animationHTML = '';
+                
+                switch(currentAnimation) {
+                    case 'xmark':
+                        animationHTML = `
+                            <div class="success-animation">
+                                <svg class="xmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                    <circle class="xmark-circle" cx="26" cy="26" r="25" fill="none"/>
+                                    <path class="xmark-check" fill="none" d="M16 16 36 36 M36 16 16 36"/>
+                                </svg>
+                            </div>
+                            <div class="success-message">Feedback Received!</div>
+                        `;
+                        break;
+                    case 'heart':
+                        animationHTML = `
+                            <div class="success-animation">
+                                <i class="fas fa-heart heart"></i>
+                            </div>
+                            <div class="success-message">Thank You for Your Feedback!</div>
+                        `;
+                        break;
+                    case 'checkmark':
+                    default:
+                        animationHTML = `
+                            <div class="success-animation">
+                                <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                    <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+                                    <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                                </svg>
+                            </div>
+                            <div class="success-message">Feedback Sent Successfully!</div>
+                        `;
+                }
+                
+                centerContent.innerHTML = animationHTML;
+            }, 700);
+            
+            canSubmit = false;
+            
+            // Reset form after 4 seconds
+            setTimeout(() => {
+                // Fade out success message
+                centerContent.style.opacity = 0;
+                
+                setTimeout(() => {
+                    // Reset to original form
+                    centerContent.innerHTML = `
+                        <h1 id="feedbackTitle">Send Your Feedback</h1>
+                        <hr id="formHr">
+                        <form id="feedbackForm">
+                            <textarea name="message" placeholder="Type your feedback here..." required></textarea>
+                            <div class="button-container">
+                                <button type="submit">
+                                    <i class="fas fa-paper-plane"></i> Submit Feedback
+                                </button>
+                            </div>
+                        </form>
+                        <div class="animation-options">
+                            <div class="anim-option ${currentAnimation === 'checkmark' ? 'active' : ''}" data-anim="checkmark" title="Checkmark Animation">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="anim-option ${currentAnimation === 'xmark' ? 'active' : ''}" data-anim="xmark" title="X Animation">
+                                <i class="fas fa-times"></i>
+                            </div>
+                            <div class="anim-option ${currentAnimation === 'heart' ? 'active' : ''}" data-anim="heart" title="Heart Animation">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Fade in the form again
+                    centerContent.classList.remove("reset-form");
+                    void centerContent.offsetWidth; // Trigger reflow
+                    centerContent.classList.add("reset-form");
+                    
+                    // Reattach event listener
+                    document.getElementById("feedbackForm").addEventListener("submit", arguments.callee);
+                    
+                    // Reattach animation option listeners
+                    document.querySelectorAll('.anim-option').forEach(option => {
+                        option.addEventListener('click', function() {
+                            document.querySelectorAll('.anim-option').forEach(opt => {
+                                opt.classList.remove('active');
+                            });
+                            this.classList.add('active');
+                            currentAnimation = this.getAttribute('data-anim');
+                        });
+                    });
+                    
+                    canSubmit = true;
+                }, 300);
+            }, 4000);
+        });
+        
+        function showAccessDenied(centerContent, currentTime) {
+            // Calculate remaining time in minutes
+            const remainingTime = 30 - Math.floor((currentTime - lastSubmissionTime) / (60 * 1000));
+            
+            centerContent.innerHTML = `
+                <div class="access-denied-content">
+                    <div class="denied-icon">
+                        <i class="fas fa-ban"></i>
+                    </div>
+                    <div class="access-denied">Submission Limit Reached</div>
+                    <div class="cooldown-message">
+                        You've submitted feedback 3 times recently. Please wait before submitting again.
+                    </div>
+                    <div class="countdown">Time remaining: ${remainingTime} minutes</div>
+                </div>
+            `;
+            
+            // Update the countdown every minute
+            const countdownElement = document.querySelector('.countdown');
+            const countdownInterval = setInterval(() => {
+                const updatedTime = 30 - Math.floor((new Date().getTime() - lastSubmissionTime) / (60 * 1000));
+                if (updatedTime > 0) {
+                    countdownElement.textContent = `Time remaining: ${updatedTime} minutes`;
+                } else {
+                    clearInterval(countdownInterval);
+                    location.reload();
+                }
+            }, 60000);
+            
+            // Set a timeout to reset the form after the cooldown period
+            setTimeout(() => {
+                location.reload();
+            }, remainingTime * 60 * 1000);
+        }
+    </script>
+</body>
+</html>
