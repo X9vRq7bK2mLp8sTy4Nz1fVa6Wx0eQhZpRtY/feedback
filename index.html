@@ -399,6 +399,20 @@
             line-height: 1.6;
             max-width: 280px;
         }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -409,21 +423,21 @@
             <form id="feedbackForm">
                 <textarea name="message" placeholder="Type your feedback here..." required></textarea>
                 <div class="button-container">
-                    <button type="submit">
+                    <button type="submit" id="submitButton">
                         <i class="fas fa-paper-plane"></i> Submit Feedback
                     </button>
                 </div>
             </form>
             
             <div class="animation-options">
-                <div class="anim-option active" data-anim="checkmark" title="Checkmark Animation">
+                <div class="anim-option active" data-anim="checkmark" title="Positive Feedback">
                     <i class="fas fa-check"></i>
                 </div>
-                <div class="anim-option" data-anim="xmark" title="X Animation">
-                    <i class="fas fa-times"></i>
-                </div>
-                <div class="anim-option" data-anim="heart" title="Heart Animation">
+                <div class="anim-option" data-anim="heart" title="Neutral Feedback">
                     <i class="fas fa-heart"></i>
+                </div>
+                <div class="anim-option" data-anim="xmark" title="Negative Feedback">
+                    <i class="fas fa-times"></i>
                 </div>
             </div>
         </div>
@@ -446,14 +460,14 @@
             });
         });
         
-        document.getElementById("feedbackForm").addEventListener("submit", function(e) {
+        document.getElementById("feedbackForm").addEventListener("submit", async function(e) {
             e.preventDefault();
             if (!canSubmit) return;
             
             const form = e.target;
             const msg = form.message.value;
             const textarea = form.querySelector("textarea");
-            const button = form.querySelector("button");
+            const button = document.getElementById("submitButton");
             const title = document.getElementById("feedbackTitle");
             const hr = document.getElementById("formHr");
             const centerContent = document.getElementById("centerContent");
@@ -475,115 +489,156 @@
                 return;
             }
             
-            // Increment submission count and update time
-            submissionCount++;
-            lastSubmissionTime = currentTime;
+            // Show loading state
+            const originalButtonText = button.innerHTML;
+            button.innerHTML = '<span class="loading"></span> Sending...';
+            button.disabled = true;
             
-            // In a real implementation, you would send the feedback to your server
-            // For demo purposes, we'll just show the success animation
-            
-            // Fade out all form elements
-            textarea.classList.add("fade-out");
-            button.classList.add("fade-out");
-            title.classList.add("fade-out");
-            hr.classList.add("fade-out");
-            if (animOptions) animOptions.classList.add("fade-out");
-            
-            // After fade out, replace with success animation
-            setTimeout(() => {
-                let animationHTML = '';
+            try {
+                // Send feedback to API
+                const response = await fetch('/api/send.js', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: msg,
+                        type: currentAnimation
+                    })
+                });
                 
-                switch(currentAnimation) {
-                    case 'xmark':
-                        animationHTML = `
-                            <div class="success-animation">
-                                <svg class="xmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-                                    <circle class="xmark-circle" cx="26" cy="26" r="25" fill="none"/>
-                                    <path class="xmark-check" fill="none" d="M16 16 36 36 M36 16 16 36"/>
-                                </svg>
-                            </div>
-                            <div class="success-message">Feedback Received!</div>
-                        `;
-                        break;
-                    case 'heart':
-                        animationHTML = `
-                            <div class="success-animation">
-                                <i class="fas fa-heart heart"></i>
-                            </div>
-                            <div class="success-message">Thank You for Your Feedback!</div>
-                        `;
-                        break;
-                    case 'checkmark':
-                    default:
-                        animationHTML = `
-                            <div class="success-animation">
-                                <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-                                    <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
-                                    <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
-                                </svg>
-                            </div>
-                            <div class="success-message">Feedback Sent Successfully!</div>
-                        `;
+                if (!response.ok) {
+                    throw new Error('Failed to send feedback');
                 }
                 
-                centerContent.innerHTML = animationHTML;
-            }, 700);
-            
-            canSubmit = false;
-            
-            // Reset form after 4 seconds
-            setTimeout(() => {
-                // Fade out success message
-                centerContent.style.opacity = 0;
+                // Increment submission count and update time
+                submissionCount++;
+                lastSubmissionTime = currentTime;
+                
+                // Fade out all form elements
+                textarea.classList.add("fade-out");
+                button.classList.add("fade-out");
+                title.classList.add("fade-out");
+                hr.classList.add("fade-out");
+                if (animOptions) animOptions.classList.add("fade-out");
+                
+                // After fade out, replace with success animation
+                setTimeout(() => {
+                    let animationHTML = '';
+                    
+                    switch(currentAnimation) {
+                        case 'xmark':
+                            animationHTML = `
+                                <div class="success-animation">
+                                    <svg class="xmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                        <circle class="xmark-circle" cx="26" cy="26" r="25" fill="none"/>
+                                        <path class="xmark-check" fill="none" d="M16 16 36 36 M36 16 16 36"/>
+                                    </svg>
+                                </div>
+                                <div class="success-message">Feedback Received!</div>
+                            `;
+                            break;
+                        case 'heart':
+                            animationHTML = `
+                                <div class="success-animation">
+                                    <i class="fas fa-heart heart"></i>
+                                </div>
+                                <div class="success-message">Thank You for Your Feedback!</div>
+                            `;
+                            break;
+                        case 'checkmark':
+                        default:
+                            animationHTML = `
+                                <div class="success-animation">
+                                    <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                                        <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+                                        <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                                    </svg>
+                                </div>
+                                <div class="success-message">Feedback Sent Successfully!</div>
+                            `;
+                    }
+                    
+                    centerContent.innerHTML = animationHTML;
+                }, 700);
+                
+                canSubmit = false;
+                
+                // Reset form after 4 seconds
+                setTimeout(() => {
+                    // Fade out success message
+                    centerContent.style.opacity = 0;
+                    
+                    setTimeout(() => {
+                        // Reset to original form
+                        centerContent.innerHTML = `
+                            <h1 id="feedbackTitle">Send Your Feedback</h1>
+                            <hr id="formHr">
+                            <form id="feedbackForm">
+                                <textarea name="message" placeholder="Type your feedback here..." required></textarea>
+                                <div class="button-container">
+                                    <button type="submit" id="submitButton">
+                                        <i class="fas fa-paper-plane"></i> Submit Feedback
+                                    </button>
+                                </div>
+                            </form>
+                            <div class="animation-options">
+                                <div class="anim-option ${currentAnimation === 'checkmark' ? 'active' : ''}" data-anim="checkmark" title="Positive Feedback">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="anim-option ${currentAnimation === 'heart' ? 'active' : ''}" data-anim="heart" title="Neutral Feedback">
+                                    <i class="fas fa-heart"></i>
+                                </div>
+                                <div class="anim-option ${currentAnimation === 'xmark' ? 'active' : ''}" data-anim="xmark" title="Negative Feedback">
+                                    <i class="fas fa-times"></i>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Fade in the form again
+                        centerContent.classList.remove("reset-form");
+                        void centerContent.offsetWidth; // Trigger reflow
+                        centerContent.classList.add("reset-form");
+                        
+                        // Reattach event listener
+                        document.getElementById("feedbackForm").addEventListener("submit", arguments.callee);
+                        
+                        // Reattach animation option listeners
+                        document.querySelectorAll('.anim-option').forEach(option => {
+                            option.addEventListener('click', function() {
+                                document.querySelectorAll('.anim-option').forEach(opt => {
+                                    opt.classList.remove('active');
+                                });
+                                this.classList.add('active');
+                                currentAnimation = this.getAttribute('data-anim');
+                            });
+                        });
+                        
+                        canSubmit = true;
+                    }, 300);
+                }, 4000);
+                
+            } catch (err) {
+                // Show error message
+                button.innerHTML = originalButtonText;
+                button.disabled = false;
+                
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message';
+                errorDiv.textContent = 'Failed to send feedback. Please try again.';
+                errorDiv.style.animation = 'none';
+                
+                form.appendChild(errorDiv);
                 
                 setTimeout(() => {
-                    // Reset to original form
-                    centerContent.innerHTML = `
-                        <h1 id="feedbackTitle">Send Your Feedback</h1>
-                        <hr id="formHr">
-                        <form id="feedbackForm">
-                            <textarea name="message" placeholder="Type your feedback here..." required></textarea>
-                            <div class="button-container">
-                                <button type="submit">
-                                    <i class="fas fa-paper-plane"></i> Submit Feedback
-                                </button>
-                            </div>
-                        </form>
-                        <div class="animation-options">
-                            <div class="anim-option ${currentAnimation === 'checkmark' ? 'active' : ''}" data-anim="checkmark" title="Checkmark Animation">
-                                <i class="fas fa-check"></i>
-                            </div>
-                            <div class="anim-option ${currentAnimation === 'xmark' ? 'active' : ''}" data-anim="xmark" title="X Animation">
-                                <i class="fas fa-times"></i>
-                            </div>
-                            <div class="anim-option ${currentAnimation === 'heart' ? 'active' : ''}" data-anim="heart" title="Heart Animation">
-                                <i class="fas fa-heart"></i>
-                            </div>
-                        </div>
-                    `;
-                    
-                    // Fade in the form again
-                    centerContent.classList.remove("reset-form");
-                    void centerContent.offsetWidth; // Trigger reflow
-                    centerContent.classList.add("reset-form");
-                    
-                    // Reattach event listener
-                    document.getElementById("feedbackForm").addEventListener("submit", arguments.callee);
-                    
-                    // Reattach animation option listeners
-                    document.querySelectorAll('.anim-option').forEach(option => {
-                        option.addEventListener('click', function() {
-                            document.querySelectorAll('.anim-option').forEach(opt => {
-                                opt.classList.remove('active');
-                            });
-                            this.classList.add('active');
-                            currentAnimation = this.getAttribute('data-anim');
-                        });
-                    });
-                    
-                    canSubmit = true;
-                }, 300);
-            }, 4000);
+                    errorDiv.style.animation = 'fadeIn 0.5s ease forwards';
+                    setTimeout(() => {
+                        errorDiv.remove();
+                    }, 3000);
+                }, 10);
+                
+                console.error('Error:', err);
+            }
         });
         
         function showAccessDenied(centerContent, currentTime) {
